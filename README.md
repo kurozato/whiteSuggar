@@ -1,9 +1,11 @@
 # whiteSuggar
 
-write in pure javascript.
+write in pure javascript.    
+for company's internal system.    
 
 - elements filtering.
 - replace url, convert query to array.
+- paging (pagination).
 
 Using jsDelivr CDN:
 ```html
@@ -12,7 +14,6 @@ Using jsDelivr CDN:
 
 ## whiteSuggar.filtering
 elements filtering.    
-write in pure javascript.     
 
 Quick Start
 ```js
@@ -45,7 +46,6 @@ input.addEventListener('input', function(e){
 ## whiteSuggar.url
 
 replace url, convert query to array.    
-write in pure javascript.
 
 Quick Start
 ```js
@@ -61,3 +61,50 @@ whiteSuggar.url.replaceUrl(searchString, 'submit');
 const qry = whiteSuggar.url.querySerialize();
 //qry = [{name:name0, value:value0}, {name:name1, value:value1}, {name:name2, value:value2}];
 ```
+
+## whiteSuggar.paging
+
+paging system.    
+
+this module using bootstrap 5.    
+but not using bootstrap 5, this module works.    
+css :
+``` html
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+```
+js (not need) :
+``` html
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+```
+
+Quick Start
+```js
+const _data = _service.getData();
+const pagingContent = document.getElementById('pagingContent');
+const table0 = document.getElementById('table0');
+whiteSuggar.paging.pagination(
+    pagingContent,
+    _data,
+    3,
+    (pageNo, data) =>  whiteSuggar.paging.updateTable(table0, columns, data));
+```
+columns of updateTable :    
+{column: string, label: string, class: string, visible: boolean, render: function}
+
+| proparty | comment |
+|---|---|
+| column | data column name |
+| label | table header label |
+| class | className (add class) |
+| visible | column visible ('false' add display:none;) |
+| render | return innerHTML |
+
+# Japanese
+素のjsで書いているため、プラグインは不要（PagingのみBootstrapがいる）    
+業務系の社内システム用    
+
+URL操作と、フィルタリング、ページング実装の3つ。    
+
+ページングは、Bootstrap5のCSSを導入しないと、いい感じにならない。    
+columnsについては、DataTablesに寄せている。    
+DataTablesが、脱jQueryしたら、いらない子。
