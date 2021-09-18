@@ -7,7 +7,7 @@ write in pure javascript.
 
 Using jsDelivr CDN:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/kurozato/whiteSuggar@0.1.0/dist/whiteSuggar.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/kurozato/whiteSuggar@1.0.0/dist/whiteSuggar.js"></script>
 ```
 
 ## whiteSuggar.filtering
