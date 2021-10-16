@@ -69,6 +69,25 @@ const whiteSuggar = window.whiteSuggar || {};
         }
 
         /**
+         * replace url part of search and hash
+         * @param {string} search 
+         * @param {string} hash 
+         */
+        _.replaceUrl = function(search, hash){
+
+            let _url = window.location.href;
+            _url = _url.replace(window.location.search, '');
+            _url = _url.replace(window.location.hash, '');
+
+            if(search !== null)
+                _url = `${_url}?${search}`;
+            if(hash !== null)
+                _url = `${_url}#${hash}`;
+
+            window.history.replaceState(null, null, _url)
+        };
+
+        /**
          * convert dictionary to query string
          * @param {Array} array 
          * @returns {string}
