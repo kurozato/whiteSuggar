@@ -6,10 +6,11 @@ for company's internal system.
 - elements filtering.
 - replace url, convert query to array.
 - paging (pagination).
+- simple table make
 
 Using jsDelivr CDN:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/kurozato/whiteSuggar@1.0.0/dist/whiteSuggar.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/kurozato/whiteSuggar@1.0.1/dist/whiteSuggar.js"></script>
 ```
 
 ## whiteSuggar.filtering
@@ -86,9 +87,29 @@ whiteSuggar.paging.pagination(
     pagingContent,
     _data,
     3,
-    (pageNo, data) =>  whiteSuggar.paging.updateTable(table0, columns, data));
+    (pageNo, data) =>  whiteSuggar.table.buildSimpleTables({
+        element: table0,
+        columns:[
+            {data: "No", label:"#" , class:"col-width-1", visible:true, render: null},
+            {data: "Name", label:"Name" , class:"col-width-5", visible:true, render: null},
+            {data: "Age", label:"Age" , class:"col-width-2", visible:true, render: (data) => {return `<small>${data}</small>`;}},
+            {data: "Id", label:"ID" , class:"", visible:fales, render: null}
+        ],
+        data: data,
+        initialize: true
+    }));
 ```
-columns of updateTable :    
+config of buildSimpleTables
+{element, columns, data, initialize}
+
+| proparty | comment |
+|---|---|
+| element | appended of table |
+| columns | see -> columns of config |
+| data | data |
+| initialize | element initialize ('true' inner clear |
+
+columns of config :    
 {column: string, label: string, class: string, visible: boolean, render: function}
 
 | proparty | comment |
@@ -107,4 +128,4 @@ URL操作と、フィルタリング、ページング実装の3つ。
 
 ページングは、Bootstrap5のCSSを導入しないと、いい感じにならない。    
 columnsについては、DataTablesに寄せている。    
-DataTablesが、脱jQueryしたら、いらない子。
+DataTablesが、脱jQueryしたら、いらない子。。。え？しないの？？
