@@ -70,14 +70,19 @@ whiteSuggar.url.convertSearchStringObject = function(array){
  * @param {FormData} formData 
  */
 whiteSuggar.url.convertSearchStringFormData = function(formData){
-    
     let _search = '';
 
-    const _keys = formData.keys();
-
-    for(let i=0; i<_keys.length; i++){
-        _search = `${_search}&${_keys[i]}=${query[_keys[i]]}`;
+    for(let _val of formData.entries()){
+        _search = _search + `&${_val[0]}=${_val[1]}`;
     }
 
     return _search.substring(1);
+};
+
+whiteSuggar.url.convertDictionary = function(formData){
+    const data = {};
+    for(let _val of formData.entries()){
+        data[_val[0]] = _val[1];
+    }
+    return data;
 };
