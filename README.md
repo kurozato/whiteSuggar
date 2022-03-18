@@ -52,9 +52,12 @@ Quick Start
 ```js
 //get serialize form
 const form0 = document.getElementById('form0');
-const data = new FormData(form0);
+const formData = new FormData(form0);
+const data = whiteSuggar.url.convertDictionary(formData);
 
 const searchString = whiteSuggar.url.convertSearchString(data);
+//Or  = whiteSuggar.url.convertSearchStringFormData(formData);
+
 //before -> https://host/mysite/index.html
 whiteSuggar.url.replaceUrl(searchString, 'submit');
 //After -> https://host/mysite/index.html?name0=value0&name1=value1&name2=value2#submit
@@ -82,13 +85,13 @@ Quick Start
 ```js
 const _data = _service.getData();
 const pagingContent = document.getElementById('pagingContent');
-const table0 = document.getElementById('table0');
+const result = document.getElementById('result');
 whiteSuggar.table.pagination(
     pagingContent,
     _data,
     3,
     (pageNo, data) =>  whiteSuggar.table.buildSimpleTables({
-        element: table0,
+        element: result,
         columns:[
             {data: "No", label:"#" , class:"col-width-1", visible:true, render: null},
             {data: "Name", label:"Name" , class:"col-width-5", visible:true, render: null},
