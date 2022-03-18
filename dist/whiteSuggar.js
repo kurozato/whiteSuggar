@@ -153,9 +153,9 @@ const whiteSuggar = window.whiteSuggar || {};
     })(root.filtering); 
 
 
-    //whiteSuggar.paging
+    //whiteSuggar.table
     
-    root.paging = root.paging || {};
+    root.table = root.table || {};
     (function(_){
 
         // local
@@ -257,6 +257,14 @@ const whiteSuggar = window.whiteSuggar || {};
             }
         }
 
+        const buildElemnt = function(tagName, id, className, cssText){
+            const _elem = document.createElement(tagName);
+            _elem.id = id;
+            _elem.className = className;
+            _elem.style.cssText = cssText;
+            return _elem;
+        };
+
         //public
 
         /**
@@ -320,48 +328,41 @@ const whiteSuggar = window.whiteSuggar || {};
             _tbody.innerHTML = _inner;
             table.appendChild(_tbody);
         };
-        
-    })(root.paging);
-    
-    //whiteSuggar.table
-
-    root.table = root.table || {};
-    (function(_){
 
         /**
-         * table Element Build
-         * @param {object} config {element, columns, data}
-         * @param {boolean} init
+         * make view table
+         * @param {object} config {elemnt, columns, data, initialize}
          */
-        _.buildSimpleTables = function(config){
+         _.buildSimpleTables = function(config){
 
             if(config.initialize)
-                config.element.innerHTML = '';
+                config.elemnt.innerHTML = '';
             
             const _data = config.data;
             const _columns = config.columns;
 
-            const _box = buildElement('div', 'updateContent', 'upd-simple-container', null);
-            const _boxH = buildElement('div', 'updateHeader', 'upd-simple-header', 'overflow:hiden;');
-            const _boxD = buildElement('div', 'updateDetail', 'upd-simple-detail', 'overflow:auto;');
-            const _tableH = buildElement('table', 'updateTableH', 'upd-simple-table-title', null);
-            const _tableD = buildElement('table', 'updateTableD', 'upd-simple-table-content', null);
+            const _box = buildElemnt('div', 'updateContent', 'upd-simple-container', null);
+            const _boxH = buildElemnt('div', 'updateHeader', 'upd-simple-header', 'overflow:hiden;');
+            const _boxD = buildElemnt('div', 'updateDetail', 'upd-simple-detail', 'overflow:auto;');
+            const _tableH = buildElemnt('table', 'updateTableH', 'upd-simple-table-title', null);
+            const _tableD = buildElemnt('table', 'updateTableD', 'upd-simple-table-content', null);
         
+            const DISP_NONE = `style="display:none;"`;
             let _inner = '';
-            let _col = {};
+            let _col = {data:"", label:"" ,class:""};
             for(let i = 0, l = _columns.length; i < l; i++){
                 _col = _columns[i];
                 if(_col.visible === false)
-                    _inner += `<th class="${_col.class}">${_col.label}</th>`;
-                else
                     _inner += `<th class="${_col.class}" style="display:none;">${_col.label}</th>`;
+                else
+                    _inner += `<th class="${_col.class}">${_col.label}</th>`;
             }
             _tableH.innerHTML = `<thead><tr>${_inner}</tr></thead>`;
 
             let _sw = 1; 
             let _disp = '';
             for(let row = 0, l = _data.length; row < l; row++){
-                const _tr = buildElement('tr', '', '', null);
+                const _tr = buildElemnt('tr', '', '', null);
                 _inner = '';
                 if(_sw === 1)
                     _tr.className = 'odd';
@@ -393,27 +394,23 @@ const whiteSuggar = window.whiteSuggar || {};
             _box.appendChild(_boxH)
             _box.appendChild(_boxD)
 
-            config.element.appendChild(_box);
+            config.elemnt.appendChild(_box);
         };
 
         /**
-         * Create Element
-         * @param {string} tagName 
-         * @param {string} id 
+         * add class 
          * @param {string} className 
-         * @param {string} cssText 
-         * @returns {Element}
+         * @param {string[]} addClass 
          */
-        const buildElement = function(tagName, id, className, cssText){
-            const _elem = document.createElement(tagName);
-            _elem.id = id;
-            _elem.className = className;
-            _elem.style.cssText = cssText;
-            return _elem;
+        _.addClassByClassName =function(className, addClass){
+            const _elems = document.getElementsByClassName(className);
+            for (let i = 0, l = _elems.length; i < l; i++) {
+                _elems[i].classList.add(addClass);               
+            }
         };
 
     })(root.table);
-
+    
 })(whiteSuggar);
 
 
