@@ -92,7 +92,7 @@ const whiteSuggar = window.whiteSuggar || {};
          * @param {Array} array 
          * @returns {string}
          */
-        _.convertSearchString = function(array){
+        _.convertSearchStringObject = function(array){
             const _keys = Object.keys(array);
             return getSearchString(_keys, (key) => {return array[key]});
         };
@@ -101,7 +101,7 @@ const whiteSuggar = window.whiteSuggar || {};
          * convert formData to query string
          * @param {FormData} formData 
          */
-        _.convertSearchString = function(formData){
+        _.convertSearchStringFormData = function(formData){
             const _keys = formData.keys();
             return getSearchString(_keys, (key) => {return formData[key]});
         };

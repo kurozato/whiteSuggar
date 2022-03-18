@@ -52,7 +52,7 @@ whiteSuggar.url.replaceUrl = function(search, hash){
  * @param {Array} array 
  * @returns {string}
  */
-whiteSuggar.url.convertSearchString = function(array){
+whiteSuggar.url.convertSearchStringObject = function(array){
 
     let _search = '';
 
@@ -69,7 +69,7 @@ whiteSuggar.url.convertSearchString = function(array){
  * convert formData to query string
  * @param {FormData} formData 
  */
-whiteSuggar.url.convertSearchString = function(formData){
+whiteSuggar.url.convertSearchStringFormData = function(formData){
     
     let _search = '';
 
