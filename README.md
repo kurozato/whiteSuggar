@@ -63,9 +63,9 @@ const qry = whiteSuggar.url.querySerialize();
 //qry = [{name:name0, value:value0}, {name:name1, value:value1}, {name:name2, value:value2}];
 ```
 
-## whiteSuggar.paging
+## whiteSuggar.table
 
-paging system.    
+paging system. and make table.   
 
 this module using bootstrap 5.    
 but not using bootstrap 5, this module works.    
@@ -83,7 +83,7 @@ Quick Start
 const _data = _service.getData();
 const pagingContent = document.getElementById('pagingContent');
 const table0 = document.getElementById('table0');
-whiteSuggar.paging.pagination(
+whiteSuggar.table.pagination(
     pagingContent,
     _data,
     3,
