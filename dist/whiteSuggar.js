@@ -92,7 +92,7 @@ const whiteSuggar = window.whiteSuggar || {};
          * @param {Array} array 
          * @returns {string}
          */
-        _.convertSearchStringObject = function(array){
+        _.convertSearchString = function(array){
             const _keys = Object.keys(array);
             return getSearchString(_keys, (key) => {return array[key]});
         };
