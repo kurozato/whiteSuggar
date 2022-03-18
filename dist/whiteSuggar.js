@@ -32,21 +32,6 @@ const whiteSuggar = window.whiteSuggar || {};
             return _vals;
         };
 
-        /**
-         * 
-         * @param {string[]} keys 
-         * @param {Function} getValue 
-         */
-        const getSearchString = function(keys, getValue){
-            let _search = '';
-        
-            for(let i=0; i<keys.length; i++){
-                _search = `${_search}&${keys[i]}=${getValue(keys[i])}`;
-            }
-
-            return _search.substring(1);
-        };
-
         //Public
 
         /**
@@ -94,7 +79,13 @@ const whiteSuggar = window.whiteSuggar || {};
          */
         _.convertSearchString = function(array){
             const _keys = Object.keys(array);
-            return getSearchString(_keys, (key) => {return array[key]});
+            let _search = '';
+        
+            for(let i=0, l = _keys.length; i < l; i++){
+                _search = _search + `&${_keys[i]}=${getValue(_keys[i])}`;
+            }
+
+            return _search.substring(1);
         };
 
         /**
@@ -102,10 +93,25 @@ const whiteSuggar = window.whiteSuggar || {};
          * @param {FormData} formData 
          */
         _.convertSearchStringFormData = function(formData){
-            const _keys = formData.keys();
-            return getSearchString(_keys, (key) => {return formData[key]});
-        };
+            let _search = '';
 
+            for(let _val of formData.entries()){
+                _search = _search + `&${_val[0]}=${_val[1]}`;
+            }
+
+            return _search.substring(1);
+        };
+        /**
+         * convert formData to dictionary object
+         * @param {FormData} formData 
+         */
+        _.convertDictionary = function(formData){
+            const data = {};
+            for(let _val of formData.entries()){
+                data[_val[0]] = _val[1];
+            }
+            return data;
+        };
     })(root.url);
 
 
