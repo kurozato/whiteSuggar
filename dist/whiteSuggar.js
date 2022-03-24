@@ -17,16 +17,16 @@ const whiteSuggar = window.whiteSuggar || {};
 
             if(_max === 1 && _hash[0]=== '') return null;
 
-            let _ary = [];
-            let _col =[];
+            let _obj = {};
+            let _col = [];
             for(let i=0; i<_max; i++){
-                _ary = [];
+                _obj = {};
                 _col = _hash[i].split('=');
-                _ary.push('name');
-                _ary.push('value');
-                _ary['name'] = _col[0];
-                _ary['value'] = decodeURIComponent(_col[1]);
-                _vals.push(_ary);
+                // _ary.push('name');
+                // _ary.push('value');
+                _obj['name'] = _col[0];
+                _obj['value'] = decodeURIComponent(_col[1]);
+                _vals.push(_obj);
             }
 
             return _vals;
@@ -74,15 +74,15 @@ const whiteSuggar = window.whiteSuggar || {};
 
         /**
          * convert dictionary to query string
-         * @param {Array} array 
+         * @param {Object} obj 
          * @returns {string}
          */
-        _.convertSearchString = function(array){
-            const _keys = Object.keys(array);
+        _.convertSearchString = function(obj){
+            const _keys = Object.keys(obj);
             let _search = '';
         
             for(let i=0, l = _keys.length; i < l; i++){
-                _search = _search + `&${_keys[i]}=${getValue(_keys[i])}`;
+                _search = _search + `&${_keys[i]}=${obj[_keys[i]]}`;
             }
 
             return _search.substring(1);
@@ -167,52 +167,56 @@ const whiteSuggar = window.whiteSuggar || {};
         // local
   
         const pagingFooterFactory = function(pageContent, maxPage, pageSize){
-            const _1st = '<li class="page-item" id="page-item-f" style="cursor:pointer;"><a class="page-link" aria-label="First" data-page="f">&laquo;</a></li>';
-            const _pre = '<li class="page-item" id="page-item-p" style="cursor:pointer;"><a class="page-link" aria-label="Previous" data-page="p">&lt;</a></li>';
-            const _nxt = '<li class="page-item" id="page-item-n" style="cursor:pointer;"><a class="page-link" aria-label="Next" data-page="n">&gt;</a></li>';
-            const _lst = '<li class="page-item" id="page-item-l" style="cursor:pointer;"><a class="page-link" aria-label="Last" data-page="l">&raquo;</a></li>';
+            const _1st = `<li class="page-item" id="${pageContent.id}_page-item-f" style="cursor:pointer;"><a class="page-link" aria-label="First" data-page="f">&laquo;</a></li>`;
+            const _pre = `<li class="page-item" id="${pageContent.id}_page-item-p" style="cursor:pointer;"><a class="page-link" aria-label="Previous" data-page="p">&lt;</a></li>`;
+            const _nxt = `<li class="page-item" id="${pageContent.id}_page-item-n" style="cursor:pointer;"><a class="page-link" aria-label="Next" data-page="n">&gt;</a></li>`;
+            const _lst = `<li class="page-item" id="${pageContent.id}_page-item-l" style="cursor:pointer;"><a class="page-link" aria-label="Last" data-page="l">&raquo;</a></li>`;
     
             const _nav = document.createElement('nav');
-            const _ul = document.createElement('ul');
+            //const _ul = document.createElement('ul');
+            const _ul = buildelement('ul', `${pageContent.id}_u-pagination-page-item`, 'pagination justify-content-end', null);
             /**li elements (string) */
             let _lis = '';
 
             _nav.setAttribute('aria-label','Page navigation');
-            _ul.classList.add('pagination','justify-content-end');
-            _ul.id = "u-pagination-page-item";
-
+            // _ul.classList.add('pagination','justify-content-end');
+            // _ul.id = "u-pagination-page-item";
+            
             _ul.dataset.currentPage = '1';
             _ul.dataset.maxPage = maxPage;
             _ul.dataset.pageSize = pageSize;
 
             _lis = _1st + _pre;
-            _lis = _lis + `<li class="page-item active" id="page-item-1" style="cursor:pointer;"><a class="page-link" data-page="1">1</a></li>`;
+            _lis = _lis + `<li class="page-item active" id="${pageContent.id}_page-item-1" style="cursor:pointer;"><a class="page-link" data-page="1">1</a></li>`;
             for (let i = 2; i <= maxPage; i++) {
-                _lis = _lis + `<li class="page-item" id="page-item-${i}" style="cursor:pointer;"><a class="page-link" data-page="${i}">${i}</a></li>`;
+                _lis = _lis + `<li class="page-item" id="${pageContent.id}_page-item-${i}" style="cursor:pointer;"><a class="page-link" data-page="${i}">${i}</a></li>`;
             }
             _lis = _lis + _nxt + _lst;
             _ul.innerHTML = _lis;
-            _nav.appendChild(_ul);
+            _nav.append(_ul);
 
-            const _div = document.createElement('div');
-            const _pageInfo = document.createElement('div');
-            const _pageItem = document.createElement('div');
-            _pageInfo.id = 'box-pagination-page-info';
-            _pageItem.id = 'box-pagination-page-item';
+            // const _div = document.createElement('div');
+            // const _pageInfo = document.createElement('div');
+            // const _pageItem = document.createElement('div');
+            // _pageInfo.id = 'box-pagination-page-info';
+            // _pageItem.id = 'box-pagination-page-item';
 
-            _pageInfo.classList.add('col');
-            _pageItem.classList.add('col');
-            _pageItem.appendChild(_nav)
-            _div.classList.add('row');
-            _div.appendChild(_pageInfo);
-            _div.appendChild(_pageItem);
+            // _pageInfo.classList.add('col');
+            // _pageItem.classList.add('col');
+            // _pageItem.append(_nav)
+            // _div.classList.add('row');
+            const _div = buildelement('div','', 'row', null);
+            const _pageInfo = buildelement('div',`${pageContent.id}_box-pagination-page-info`, 'col', null);
+            const _pageItem = buildelement('div',`${pageContent.id}_box-pagination-page-item`, 'col', null);
+            _pageItem.append(_nav)
+            _div.append(_pageInfo,_pageItem);
 
-            pageContent.appendChild(_div);
+            pageContent.append(_div);
         };
         
-        const togglePageNo = function(item, data, callback){
+        const togglePageNo = function(item, data, callback, pageContent){
             let _page = Number(item);
-            const _ul = document.getElementById('u-pagination-page-item');
+            const _ul = document.getElementById(`${pageContent.id}_u-pagination-page-item`);
             let _current = Number(_ul.dataset.currentPage);
             const _maxPage = Number(_ul.dataset.maxPage);
             const _pageSize = Number(_ul.dataset.pageSize);
@@ -231,8 +235,8 @@ const whiteSuggar = window.whiteSuggar || {};
             
             if(_page == _current) return;
 
-            const _before =  document.getElementById(`page-item-${_current}`);
-            const _item = document.getElementById(`page-item-${_page}`);
+            const _before =  document.getElementById(`${pageContent.id}_page-item-${_current}`);
+            const _item = document.getElementById(`${pageContent.id}_page-item-${_page}`);
 
             _before.classList.remove('active');
             _item.classList.add('active')
@@ -244,13 +248,17 @@ const whiteSuggar = window.whiteSuggar || {};
             const _view = data.slice(_from, _to);
 
             //togglePageInfo(data);
-            togglePageInfo(_from, _view, data);
+            togglePageInfo(_from, _view, data, pageContent);
             callback(_page, _view)
         };
 
-        const togglePageInfo = function(from, view, data){
+        const togglePageInfo = function(from, view, data, pageContent){
+            const _box =  document.getElementById(`${pageContent.id}_box-pagination-page-info`);
             const _pageInfo = `<sapn id="from-item-amnt">${from + 1}</sapn> <sapn id="from-to-item">-</sapn> <sapn id="to-item-amnt">${from + view.length}</sapn> <sapn id="of-item-total-amnt">/</sapn> <sapn id="item-total-amnt">${data.length}</sapn>`;
-            document.getElementById('box-pagination-page-info').innerHTML = `<div class="col">${_pageInfo}</div>`;
+            _box.dataset.fromItem = (from + 1);
+            _box.dataset.ToItem = (from + view.length);
+            _box.dataset.ItemTotal = (data.length);
+            _box.innerHTML = `<div class="col">${_pageInfo}</div>`;
         };
 
         const setEventPageClick = function(pageContent, data, callback){
@@ -258,12 +266,20 @@ const whiteSuggar = window.whiteSuggar || {};
              for (let i = 0; i < elems.length; i++) {
                 elems[i].addEventListener(
                     'click',
-                    (e) => togglePageNo(e.target.dataset.page, data, callback), 
+                    (e) => togglePageNo(e.target.dataset.page, data, callback, pageContent), 
                     false);        
             }
         }
 
-        const buildElemnt = function(tagName, id, className, cssText){
+        /**
+         * 
+         * @param {String} tagName 
+         * @param {String} id 
+         * @param {String} className 
+         * @param {String} cssText 
+         * @returns {Element}
+         */
+        const buildelement = function(tagName, id, className, cssText){
             const _elem = document.createElement(tagName);
             _elem.id = id;
             _elem.className = className;
@@ -281,15 +297,42 @@ const whiteSuggar = window.whiteSuggar || {};
          * @param {Function} callback 
          */
         _.pagination = function(pageContent, data, pageSize, callback){
+            if(pageContent.id === undefined || pageContent.id === null || pageContent.id === '') {
+                const _message = `'pageContent' element requires id.`;
+                console.error(`${_message}`,'Element:',pageContent);
+                throw _message;
+            }
+
             const maxPage = Math.ceil(data.length / pageSize);
             if(maxPage == 0) return;
             pagingFooterFactory(pageContent, maxPage, pageSize);
             setEventPageClick(pageContent, data, callback);
             const _view = data.slice(0, pageSize);
-            togglePageInfo(0, _view, data);
+            togglePageInfo(0, _view, data, pageContent);
             callback(1, _view);
         };
 
+        _.addupToPageSize = function(data, pageSize){
+            const len = pageSize - data.length;
+            const _data = [];
+            if( len > 0){
+                const _obj = {};
+                const _key = Object.keys(data[0]);
+                for (let col = 0; col < _key.length; col++) {
+                    _obj[_key[col]] = '';                    
+                } 
+
+                let row 
+                for (row= 0; row < data.length; row++) {
+                    _data.push(data[row]);
+                }
+                for (row = 0; row < len; row++) {
+                    _data.push(_obj);
+                }
+                return _data;
+            }
+            else return data;
+        };
         /**
          * use bootstrap 5 Pagination, make view table
          * @param {HTMLTableElement} table 
@@ -309,7 +352,6 @@ const whiteSuggar = window.whiteSuggar || {};
             }
             _th = _th + '</tr>';
             _thead.innerHTML = _th;
-            table.appendChild(_thead);
             
             let _inner = ''
             for (let i = 0; i < data.length; i++) {
@@ -332,75 +374,82 @@ const whiteSuggar = window.whiteSuggar || {};
                 _inner = _inner + _tr;
             }
             _tbody.innerHTML = _inner;
-            table.appendChild(_tbody);
+            table.append(_thead, _tbody);
         };
 
         /**
          * make view table
-         * @param {object} config {elemnt, columns, data, initialize}
+         * @param {object} config {element, columns, data, initialize}
          */
          _.buildSimpleTables = function(config){
 
             if(config.initialize)
-                config.elemnt.innerHTML = '';
+                config.element.innerHTML = '';
             
             const _data = config.data;
             const _columns = config.columns;
 
-            const _box = buildElemnt('div', 'updateContent', 'upd-simple-container', null);
-            const _boxH = buildElemnt('div', 'updateHeader', 'upd-simple-header', 'overflow:hiden;');
-            const _boxD = buildElemnt('div', 'updateDetail', 'upd-simple-detail', 'overflow:auto;');
-            const _tableH = buildElemnt('table', 'updateTableH', 'upd-simple-table-title', null);
-            const _tableD = buildElemnt('table', 'updateTableD', 'upd-simple-table-content', null);
+            const _box = buildelement('div', 'updateContent', 'upd-simple-container', null);
+            const _boxH = buildelement('div', 'updateHeader', 'upd-simple-header', 'overflow:hiden;');
+            const _boxD = buildelement('div', 'updateDetail', 'upd-simple-detail', 'overflow:auto;');
+            const _tableH = buildelement('table', 'updateTableH', 'upd-simple-table-title', null);
+            const _tableD = buildelement('table', 'updateTableD', 'upd-simple-table-content', null);
         
             const DISP_NONE = `style="display:none;"`;
             let _inner = '';
-            let _col = {data:"", label:"" ,class:""};
+            let _col = {data:"", title:"" ,class:""};
             for(let i = 0, l = _columns.length; i < l; i++){
                 _col = _columns[i];
                 if(_col.visible === false)
-                    _inner += `<th class="${_col.class}" style="display:none;">${_col.label}</th>`;
+                    _inner += `<th scope="col" class="${_col.class}" style="display:none;">${_col.title}</th>`;
                 else
-                    _inner += `<th class="${_col.class}">${_col.label}</th>`;
+                    _inner += `<th scope="col" class="${_col.class}">${_col.title}</th>`;
             }
             _tableH.innerHTML = `<thead><tr>${_inner}</tr></thead>`;
 
             let _sw = 1; 
+            let _class = '';
+            let _customAttr = '';
             let _disp = '';
             for(let row = 0, l = _data.length; row < l; row++){
-                const _tr = buildElemnt('tr', '', '', null);
+                const _tr = buildelement('tr', '', '', null);
                 _inner = '';
-                if(_sw === 1)
-                    _tr.className = 'odd';
-                else 
-                    _tr.className = 'even'
+
+                _tr.className = (_sw === 1) ? 'odd' : 'even';
+       
+                // if(_sw === 1)
+                //     _tr.className = 'odd';
+                // else 
+                //     _tr.className = 'even'
                 
                 for(let col = 0, l = _columns.length; col < l; col++){
                     _col = _columns[col];
-                    if(_col.visible === false)
-                        _disp = `style="display:none;"`
-                    else 
-                        _disp = '';
+                    // if(_col.visible === false)
+                    //     _disp = `style="display:none;"`
+                    // else 
+                    //     _disp = '';
+                    _disp = (_col.visible === false) ? `style="display:none;"` : '';
+                    _class = (_col.class == null) ? '' : _col.class;
+                    _customAttr = (_col.customAttribute == null) ? '' : _col.customAttribute;
 
                     if(_col.render == null)
-                        _inner += `<td class="${_col.class}" ${_disp}>${_data[row][_col.data]}</td>`;
+                        _inner += `<td class="${_class}" ${_disp} ${_customAttr}>${_data[row][_col.data]}</td>`;
                     else 
-                        _inner += `<td class="${_col.class}" ${_disp}>${_col.render(_data[row][_col.data])}</td>`;
+                        _inner += `<td class="${_class}" ${_disp} ${_customAttr}>${_col.render(_data[row])}</td>`;
                 }
-            _tr.innerHTML = _inner;
-            _tableD.appendChild(_tr);
+                _tr.innerHTML = _inner;
+                _tableD.append(_tr);
                 _sw *= -1;
             }
             _tableD.innerHTML = `<tbody>${_tableD.innerHTML}</tbody>`;
 
-            _boxH.appendChild(_tableH);
-            _boxD.appendChild(_tableD);
+            _boxH.append(_tableH);
+            _boxD.append(_tableD);
 
             _boxD.addEventListener('scroll', (e) => {_boxH.scrollLeft = _boxD.scrollLeft;}, false);
-            _box.appendChild(_boxH)
-            _box.appendChild(_boxD)
+            _box.append(_boxH, _boxD)
 
-            config.elemnt.appendChild(_box);
+            config.element.append(_box);
         };
 
         /**
