@@ -90,10 +90,10 @@ whiteSuggar.paging.pagination(
     (pageNo, data) =>  whiteSuggar.table.buildSimpleTables({
         element: table0,
         columns:[
-            {data: "No", label:"#" , class:"col-width-1", visible:true, render: null},
-            {data: "Name", label:"Name" , class:"col-width-5", visible:true, render: null},
-            {data: "Age", label:"Age" , class:"col-width-2", visible:true, render: (data) => {return `<small>${data}</small>`;}},
-            {data: "Id", label:"ID" , class:"", visible:fales, render: null}
+            {data: "No", title:"#" , class:"col-width-1", visible:true, render: null},
+            {data: "Name", title:"Name" , class:"col-width-5", visible:true, render: null},
+            {data: "Age", title:"Age" , class:"col-width-2", visible:true, render: (data) => {return `<small>${data}</small>`;}},
+            {data: "Id", title:"ID" , class:"", visible:fales, render: null}
         ],
         data: data,
         initialize: true
