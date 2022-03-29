@@ -115,7 +115,7 @@ columns of config :
 | proparty | comment |
 |---|---|
 | column | data column name |
-| label | table header label |
+| title | table header title |
 | class | className (add class) |
 | visible | column visible ('false' add display:none;) |
 | render | return innerHTML |
