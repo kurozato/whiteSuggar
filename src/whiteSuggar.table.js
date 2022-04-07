@@ -2,220 +2,413 @@
 const whiteSuggar = window.whiteSuggar || {};
 
 (function(root){
-    root.table = root.table || {};
-    (function(_){
-
-        // local
-  
-        const pagingFooterFactory = function(pageContent, maxPage, pageSize){
-            const _1st = '<li class="page-item" id="page-item-f" style="cursor:pointer;"><a class="page-link" aria-label="First" data-page="f">&laquo;</a></li>';
-            const _pre = '<li class="page-item" id="page-item-p" style="cursor:pointer;"><a class="page-link" aria-label="Previous" data-page="p">&lt;</a></li>';
-            const _nxt = '<li class="page-item" id="page-item-n" style="cursor:pointer;"><a class="page-link" aria-label="Next" data-page="n">&gt;</a></li>';
-            const _lst = '<li class="page-item" id="page-item-l" style="cursor:pointer;"><a class="page-link" aria-label="Last" data-page="l">&raquo;</a></li>';
+ //whiteSuggar.table
     
-            const _nav = document.createElement('nav');
-            const _ul = document.createElement('ul');
-            /**li elements (string) */
-            let _lis = '';
+ root.table = root.table || {};
+ (function(_){
+     const NON_OMIT = -1;
+     const FL_OMIT = 0;
+     const FLM_OMIT = 1;
+ 
+     const DATA_KEY_PAGE_NO = 'page';
+     const DATA_KEY_CUR_PAGE = 'currentPage';
+     const DATA_KEY_PER_PAGE = 'perPage';
+ 
 
-            _nav.setAttribute('aria-label','Page navigation');
-            _ul.classList.add('pagination','justify-content-end');
-            _ul.id = "u-pagination-page-item";
+    /**
+     * 
+     * @param {string} id 
+     * @param {string} ariaLabel 
+     * @param {string} dataPage 
+     * @param {boolean} active
+     * @param {string} text 
+     * @param {HTMLElement} content 
+     */
+    const addLiElement = function(id, ariaLabel, dataPage, active, text, content){
+        const _li = document.createElement('li');
+        _li.classList.add('page-item');
+        if(active === true)
+            _li.classList.add('active');
+        _li.id = id;
+        _li.setAttribute('style','cursor:pointer;');
 
-            _ul.dataset.currentPage = '1';
-            _ul.dataset.maxPage = maxPage;
-            _ul.dataset.pageSize = pageSize;
+        const _a = document.createElement('a');
+        _a.classList.add('page-link');
+        _a.setAttribute('aria-label',ariaLabel);
+        _a.setAttribute('data-page',dataPage);
+        _a.textContent = text;
 
-            _lis = _1st + _pre;
-            _lis = _lis + `<li class="page-item active" id="page-item-1" style="cursor:pointer;"><a class="page-link" data-page="1">1</a></li>`;
-            for (let i = 2; i <= maxPage; i++) {
-                _lis = _lis + `<li class="page-item" id="page-item-${i}" style="cursor:pointer;"><a class="page-link" data-page="${i}">${i}</a></li>`;
-            }
-            _lis = _lis + _nxt + _lst;
-            _ul.innerHTML = _lis;
-            _nav.appendChild(_ul);
+        _li.append(_a);
 
-            const _div = document.createElement('div');
-            const _pageInfo = document.createElement('div');
-            const _pageItem = document.createElement('div');
-            _pageInfo.id = 'box-pagination-page-info';
-            _pageItem.id = 'box-pagination-page-item';
+        content.append(_li);
+    };
 
-            _pageInfo.classList.add('col');
-            _pageItem.classList.add('col');
-            _pageItem.appendChild(_nav)
-            _div.classList.add('row');
-            _div.appendChild(_pageInfo);
-            _div.appendChild(_pageItem);
+     const buildSimpleElement = function(tagName, id, text){
+        const _elem = document.createElement(tagName);
+        _elem.id = id;
+        _elem.textContent = text;
+        return _elem;
+    };    
 
-            pageContent.appendChild(_div);
-        };
+     /**
+      * 
+      * @param {String} tagName 
+      * @param {String} id 
+      * @param {String} className 
+      * @param {String} cssText 
+      * @returns {Element}
+      */
+     const buildelement = function(tagName, id, className, cssText){
+         const _elem = document.createElement(tagName);
+         _elem.id = id;
+         _elem.className = className;
+         _elem.style.cssText = cssText;
+         return _elem;
+     };
+ 
+     /**
+      * 
+      * @param {Number} max 
+      */
+     const getOMIT = function(max){
+         if(max < 7)
+             return NON_OMIT;
+         if(10 <= max)
+             return FLM_OMIT;
+         
+         return FL_OMIT;
+     };
+ 
+     /**
+      * 
+      * @param {Number} OMIT 
+      * @param {Number} current
+      * @param {Number} max
+      * @returns {function(Number, Number, HTMLElement, HTMLElement)}
+      */
+     const pagingFactory = function(OMIT, current, max){
+         switch (OMIT) {
+             case NON_OMIT:
+                 return simplePaging;
+                 //break;
+             case FL_OMIT:
+                 if(current < 5) return firstOmitPaging;
+                 else return lastOmitPaging;
+                 //break;
+             case FLM_OMIT:
+                 if(current < 5) return firstOmitPaging;
+                 else if(max - 3 <= current) return lastOmitPaging;
+                 else return midOmitPaging;
+                 //break;      
+         }
+     };
+ 
+     /**
+      * 
+      * @param {Number} max 
+      * @param {Number} current 
+      * @param {HTMLElement} ul 
+      * @param {HTMLElement} element 
+      */
+      const simplePaging = function(max, current, ul, element){
+    
+        addLiElement(`${element.id}_page-item-f`, 'First', 'f', false, '«', ul);
+        addLiElement(`${element.id}_page-item-p`, 'Previous', 'p', false, '<', ul);
+
+        for (let i = 1; i <= max; i++) {
+            const _i = i.toString();
+            addLiElement('page-item-' + _i, '', _i,  i === current, _i, ul);
+        }
         
-        const togglePageNo = function(item, data, callback){
-            let _page = Number(item);
-            const _ul = document.getElementById('u-pagination-page-item');
-            let _current = Number(_ul.dataset.currentPage);
-            const _maxPage = Number(_ul.dataset.maxPage);
-            const _pageSize = Number(_ul.dataset.pageSize);
+        addLiElement(`${element.id}_page-item-n`, 'Next', 'n', false, '>', ul);
+        addLiElement(`${element.id}_page-item-l`, 'Last', 'l', false, '»', ul);
 
-            if(item === 'p')
-                _page = _current - 1;
+        //addLiElement(`${element.id}_page-item-o`, 'Omit', 'o', false, '...', ul);
+     };
+     
+     /**
+      * 
+      * @param {Number} max 
+      * @param {Number} current 
+      * @param {HTMLElement} ul 
+      * @param {HTMLElement} element 
+      */
+     const firstOmitPaging = function(max, current, ul, element){
+        const _max = max.toString();
+        
+        addLiElement(`${element.id}_page-item-f`, 'First', 'f', false, '«', ul);
+        addLiElement(`${element.id}_page-item-p`, 'Previous', 'p', false, '<', ul);
 
-            if(item === 'n')
-                _page = _current + 1; 
-                
-            if(item === 'f' || _page < 1)
-                _page = 1; 
-            
-            if(item === 'l' || _page > _maxPage)
-                _page = _maxPage;
-            
-            if(_page == _current) return;
+        for (let i = 1; i <= 5; i++) {
+            const _i = i.toString();
+            addLiElement('page-item-' + _i, '', _i,  i === current, _i, ul);
+        }
+        /*** Omit ***/
+        addLiElement(`${element.id}_page-item-o`, 'Omit', 'o', false, '...', ul);
+        addLiElement('page-item-' + _max, '', _max,  false, _max, ul);
+        /*** Omit ***/
+        addLiElement(`${element.id}_page-item-n`, 'Next', 'n', false, '>', ul);
+        addLiElement(`${element.id}_page-item-l`, 'Last', 'l', false, '»', ul);
 
-            const _before =  document.getElementById(`page-item-${_current}`);
-            const _item = document.getElementById(`page-item-${_page}`);
-
-            _before.classList.remove('active');
-            _item.classList.add('active')
-            
-            _ul.dataset.currentPage = _page;
-
-            const _from = _pageSize * (_page - 1);
-            const _to = _pageSize * _page;
-            const _view = data.slice(_from, _to);
-
-            //togglePageInfo(data);
-            togglePageInfo(_from, _view, data);
-            callback(_page, _view)
-        };
-
-        const togglePageInfo = function(from, view, data){
-            const _pageInfo = `<sapn id="from-item-amnt">${from + 1}</sapn> <sapn id="from-to-item">-</sapn> <sapn id="to-item-amnt">${from + view.length}</sapn> <sapn id="of-item-total-amnt">/</sapn> <sapn id="item-total-amnt">${data.length}</sapn>`;
-            document.getElementById('box-pagination-page-info').innerHTML = `<div class="col">${_pageInfo}</div>`;
-        };
-
-        const setEventPageClick = function(pageContent, data, callback){
-            const elems = pageContent.getElementsByClassName('page-item');
-             for (let i = 0; i < elems.length; i++) {
-                elems[i].addEventListener(
-                    'click',
-                    (e) => togglePageNo(e.target.dataset.page, data, callback), 
-                    false);        
-            }
+     };
+ 
+     /**
+      * 
+      * @param {Number} max 
+      * @param {Number} current 
+      * @param {HTMLElement} ul 
+      * @param {HTMLElement} element 
+      */
+      const lastOmitPaging = function(max, current, ul, element){
+       
+        addLiElement(`${element.id}_page-item-f`, 'First', 'f', false, '«', ul);
+        addLiElement(`${element.id}_page-item-p`, 'Previous', 'p', false, '<', ul);
+        /*** Omit ***/
+        addLiElement('page-item-' + '1', '', '1',  false, '1', ul);
+        addLiElement(`${element.id}_page-item-o`, 'Omit', 'o', false, '...', ul);
+        /*** Omit ***/
+        for (let i = max - 4; i <= max; i++) {
+            const _i = i.toString();
+            addLiElement('page-item-' + _i, '', _i,  i === current, _i, ul);
         }
 
-        /**
-         * 
-         * @param {string} tagName 
-         * @param {string} id 
-         * @param {string} className 
-         * @param {string} cssText 
-         * @returns {Element}
-         */
-        const buildElemnt = function(tagName, id, className, cssText){
-            const _elem = document.createElement(tagName);
-            _elem.id = id;
-            _elem.className = className;
-            _elem.style.cssText = cssText;
-            return _elem;
-        };
+        addLiElement(`${element.id}_page-item-n`, 'Next', 'n', false, '>', ul);
+        addLiElement(`${element.id}_page-item-l`, 'Last', 'l', false, '»', ul);
 
-        //public
-
-        /**
-         * use bootstrap 5 Pagination
-         * @param {HTMLElement} pageContent 
-         * @param {Array} data 
-         * @param {Number} pageSize 
-         * @param {Function} callback 
-         */
-        _.pagination = function(pageContent, data, pageSize, callback){
-            const maxPage = Math.ceil(data.length / pageSize);
-            if(maxPage == 0) return;
-            pagingFooterFactory(pageContent, maxPage, pageSize);
-            setEventPageClick(pageContent, data, callback);
-            const _view = data.slice(0, pageSize);
-            togglePageInfo(0, _view, data);
-            callback(1, _view);
-        };
-
-        /**
-         * make view table
-         * @param {object} config {elemnt, columns, data}
-         * @param {boolean} init
-         */
-         _.buildSimpleTables = function(config){
-
-            if(config.initialize)
-                config.elemnt.innerHTML = '';
-            
-            const _data = config.data;
-            const _columns = config.columns;
-
-            const _box = buildElemnt('div', 'updateContent', 'upd-simple-container', null);
-            const _boxH = buildElemnt('div', 'updateHeader', 'upd-simple-header', 'overflow:hiden;');
-            const _boxD = buildElemnt('div', 'updateDetail', 'upd-simple-detail', 'overflow:auto;');
-            const _tableH = buildElemnt('table', 'updateTableH', 'upd-simple-table-title', null);
-            const _tableD = buildElemnt('table', 'updateTableD', 'upd-simple-table-content', null);
+     };
+ 
+     /**
+      * 
+      * @param {Number} max 
+      * @param {Number} current 
+      * @param {HTMLElement} ul 
+      * @param {HTMLElement} element 
+      */
+      const midOmitPaging = function(max, current, ul,element){
+        const _max = max.toString();
         
-            const DISP_NONE = `style="display:none;"`;
-            let _inner = '';
-            let _col = {data:"", label:"" ,class:""};
-            for(let i = 0, l = _columns.length; i < l; i++){
-                _col = _columns[i];
-                if(_col.visible === false)
-                    _inner += `<th class="${_col.class}" style="display:none;">${_col.label}</th>`;
-                else
-                    _inner += `<th class="${_col.class}">${_col.label}</th>`;
-            }
-            _tableH.innerHTML = `<thead><tr>${_inner}</tr></thead>`;
+        addLiElement(`${element.id}_page-item-f`, 'First', 'f', false, '«', ul);
+        addLiElement(`${element.id}_page-item-p`, 'Previous', 'p', false, '<', ul);
+        /*** Omit ***/
+        addLiElement('page-item-' + '1', '', '1',  false, '1', ul);
+        addLiElement(`${element.id}_page-item-o`, 'Omit', 'o', false, '...', ul);
+        /*** Omit ***/
+        for (let i = current - 2; i <= current + 2; i++) {
+            const _i = i.toString();
+            addLiElement('page-item-' + _i, '', _i,  i === current, _i, ul);
+        }
+        /*** Omit ***/
+        addLiElement(`${element.id}_page-item-o`, 'Omit', 'o', false, '...', ul);
+        addLiElement('page-item-' + _max, '', _max,  false, _max, ul);
+        /*** Omit ***/
+        addLiElement(`${element.id}_page-item-n`, 'Next', 'n', false, '>', ul);
+        addLiElement(`${element.id}_page-item-l`, 'Last', 'l', false, '»', ul);
 
-            let _sw = 1; 
-            let _disp = '';
-            for(let row = 0, l = _data.length; row < l; row++){
-                const _tr = buildElemnt('tr', '', '', null);
-                _inner = '';
-                if(_sw === 1)
-                    _tr.className = 'odd';
-                else 
-                    _tr.className = 'even'
-                
-                for(let col = 0, l = _columns.length; col < l; col++){
-                    _col = _columns[col];
-                    if(_col.visible === false)
-                        _disp = `style="display:none;"`
-                    else 
-                        _disp = '';
+     };
+ 
+     /**
+      * 
+      * @param {HTMLElement} ul 
+      */
+     const paging = function(current, max, ul, element){
+         const _fnPaging = pagingFactory(getOMIT(max), current, max);
+         ul.innerHTML = '';
+         _fnPaging(max, current, ul, element);
+         ul.dataset[DATA_KEY_CUR_PAGE] = current;
+     }
+ 
+     /**
+      * 
+      * @param {String} page 
+      * @param {Number} current 
+      */
+     const getNextPage = function(page, current, max){
+         switch(page){
+             case 'f': return 1;
+             case 'p': return current - 1;
+             case 'n': return current + 1;
+             case 'l': return max;
+             case 'o': return current
+             default: return page;
+         }
+     };
+ 
+     /**
+      * 
+      * @param {HTMLElement} element 
+      * @param {Array | Object} data 
+      * @param {number} numPerPage 
+      * @param {HTMLElement} content 
+      * @param {Function} callback 
+      */
+      const setEventPageClick = function(element, max, data, content, callback){
+         const elems = element.getElementsByClassName('page-item');
+          for (let i = 0; i < elems.length; i++) {
+             elems[i].addEventListener(
+                 'click',
+                 (e) => pageChange(e.target.dataset[DATA_KEY_PAGE_NO], max, element, data, content, callback), 
+                 false);        
+         }
+     };
+ 
+     /**
+      * 
+      * @param {String} page 
+      * @param {Number} max 
+       * @param {HTMLElement} element 
+      * @param {Array | Object} data 
+      * @param {HTMLElement} content 
+      * @param {Function} callback 
+      * @returns 
+      */
+     const pageChange = function(page, max, element, data, content, callback){
+         const _ul = document.getElementById(`${element.id}_u-pagination-page-item`);
+         const _info = document.getElementById(`${element.id}_box-pagination-page-info`);
+         const _current = Number(_ul.dataset[DATA_KEY_CUR_PAGE]);
+         const _next = Number(getNextPage(page, _current, max));
+         const _pageSize = Number(_info.dataset[DATA_KEY_PER_PAGE]);
+ 
+         if(_next === _current || _next < 1 || max < _next) return;
+ 
+         paging(_next, max, _ul, element);
+         setEventPageClick(element, max, data, content, callback);
+         
+         const _from = _pageSize * (_next - 1);
+         const _to = _pageSize * _next;
+         const _view = data.slice(_from, _to);
+ 
+         const _pageInfo = document.createElement('div');
+         _pageInfo.classList.add('col');
+         _pageInfo.append(
+            buildSimpleElement('span','from-item-amnt', (_from + 1).toString()),
+            buildSimpleElement('span','from-to-item', '-'),
+            buildSimpleElement('span','to-item-amnt', (_from + _view.length).toString()),
+            buildSimpleElement('span','of-item-total-amnt', '/'),
+            buildSimpleElement('span','item-total-amnt', (data.length).toString()),
+         );
+         _info.innerHTML = '';
+         _info.append(_pageInfo);
+ 
+         callback(_next, _view, content);
+     };
+ 
+     //public
 
-                    if(_col.render == null)
-                        _inner += `<td class="${_col.class}" ${_disp}>${_data[row][_col.data]}</td>`;
-                    else 
-                        _inner += `<td class="${_col.class}" ${_disp}>${_col.render(_data[row][_col.data])}</td>`;
-                }
-            _tr.innerHTML = _inner;
-            _tableD.appendChild(_tr);
-                _sw *= -1;
-            }
-            _tableD.innerHTML = `<tbody>${_tableD.innerHTML}</tbody>`;
+     /**
+      * use bootstrap 5 Pagination
+      * @param {HTMLElement} element 
+      * @param {Array | Object} data 
+      * @param {number} numPerPage 
+      * @param {Function} callback 
+      */
+      _.pagination = function(element, data, numPerPage, callback){
+         if(element.id === undefined || element.id === null || element.id === '') {
+             const _message = `'pageContent' element requires id.`;
+             console.error(`${_message}`,'Element:',element);
+             throw _message;
+         }
+     
+         element.innerHTML = '';
+         const _content = buildelement('div',`${element.id}_box-pagination-content`, 'col', null);
 
-            _boxH.appendChild(_tableH);
-            _boxD.appendChild(_tableD);
+         const max = Math.ceil(data.length / numPerPage);
+         const _nav = document.createElement('nav');
+         const _ul = buildelement('ul', `${element.id}_u-pagination-page-item`, 'pagination justify-content-end', null);
+         _nav.setAttribute('aria-label','Page navigation');
+         paging(0, max, _ul, element);
+         _nav.append(_ul);
+ 
+         const _div = buildelement('div','', 'row', null);
+         const _pageInfo = buildelement('div',`${element.id}_box-pagination-page-info`, 'col', null);
+         const _pageItem = buildelement('div',`${element.id}_box-pagination-page-item`, 'col', null);
+         _pageInfo.dataset[DATA_KEY_PER_PAGE] = numPerPage;
+         _pageItem.append(_nav)
+         _div.append(_pageInfo, _pageItem);
+ 
+         element.append(_content, _div);         
+         pageChange('1', max, element, data, _content, callback);
+     };
+  
+     
 
-            _boxD.addEventListener('scroll', (e) => {_boxH.scrollLeft = _boxD.scrollLeft;}, false);
-            _box.appendChild(_boxH)
-            _box.appendChild(_boxD)
+     /**
+      * make view table
+      * @param {object} config {element, columns, data, initialize}
+      */
+      _.buildSimpleTables = function(config){
+ 
+         if(config.initialize)
+             config.element.innerHTML = '';
+         
+         const _data = config.data;
+         const _columns = config.columns;
+ 
+         const _box = buildelement('div', 'updateContent', 'upd-simple-container', null);
+         const _boxH = buildelement('div', 'updateHeader', 'upd-simple-header', 'overflow:hiden;');
+         const _boxD = buildelement('div', 'updateDetail', 'upd-simple-detail', 'overflow:auto;');
+         const _tableH = buildelement('table', 'updateTableH', 'upd-simple-table-title', null);
+         const _tableD = buildelement('table', 'updateTableD', 'upd-simple-table-content', null);
+     
+         let _inner = '';
+         let _col = {data:"", title:"" ,class:""};
+         for(let i = 0, l = _columns.length; i < l; i++){
+             _col = _columns[i];
+             if(_col.visible === false)
+                 _inner += `<th scope="col" class="${_col.class}" style="display:none;">${_col.title}</th>`;
+             else
+                 _inner += `<th scope="col" class="${_col.class}">${_col.title}</th>`;
+         }
+         _tableH.innerHTML = `<thead><tr>${_inner}</tr></thead>`;
+ 
+         let _sw = 1; 
+         let _class = '';
+         let _customAttr = '';
+         let _disp = '';
+         for(let row = 0, l = _data.length; row < l; row++){
+             const _tr = buildelement('tr', '', '', '');
+             _inner = '';
 
-            config.elemnt.appendChild(_box);
-        };
-
-        _.addClassByClassName =function(className, addClass){
-            const _elems = document.getElementsByClassName(className);
-            for (let i = 0, l = _elems.length; i < l; i++) {
-                _elems[i].classList.add(addClass);               
-            }
-        };
-
-    })(root.table);
+             _tr.className = (_sw === 1) ? 'odd' : 'even';
+              
+             for(let col = 0, l = _columns.length; col < l; col++){
+                 _col = _columns[col];
+                 _disp = (_col.visible === false) ? `style="display:none;"` : '';
+                 _class = (_col.class == null) ? '' : _col.class;
+                 _customAttr = (_col.customAttribute == null) ? '' : _col.customAttribute;
+ 
+                 if(_col.render == null)
+                     _inner += `<td class="${_class}" ${_disp} ${_customAttr}>${_data[row][_col.data]}</td>`;
+                 else 
+                     _inner += `<td class="${_class}" ${_disp} ${_customAttr}>${_col.render(_data[row])}</td>`;
+             }
+             _tr.innerHTML = _inner;
+             _tableD.append(_tr);
+             _sw *= -1;
+         }
+         _tableD.innerHTML = `<tbody>${_tableD.innerHTML}</tbody>`;
+ 
+         _boxH.append(_tableH);
+         _boxD.append(_tableD);
+ 
+         _boxD.addEventListener('scroll', (e) => {_boxH.scrollLeft = _boxD.scrollLeft;}, false);
+         _box.append(_boxH, _boxD)
+ 
+         config.element.append(_box);
+     };
+ 
+     /**
+      * add class 
+      * @param {string} className 
+      * @param {string[]} addClass 
+      */
+     _.addClassByClassName =function(className, addClass){
+         const _elems = document.getElementsByClassName(className);
+         for (let i = 0, l = _elems.length; i < l; i++) {
+             _elems[i].classList.add(addClass);               
+         }
+     };
+ 
+ })(root.table);
 
 })(whiteSuggar);
 

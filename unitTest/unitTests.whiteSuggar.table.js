@@ -19,6 +19,7 @@ const aryTest = [
 ];
 describe('whiteSuggar.table', function(){
     it('addClassByClassName ', function(){
+        console.log(whiteSuggar);
         const _box = document.createElement('div');
         _box.classList.add('ut-1');
         document.getElementById('domTestsAria').appendChild(_box);
@@ -48,20 +49,19 @@ describe('whiteSuggar.table', function(){
     it('pagination' ,function(){
 
         const _box = document.createElement('div');
-        const _boxC = document.createElement('div');
         _box.id='pagination-simple';
-        _box.appendChild(_boxC);
         document.getElementById('domTestsAria').appendChild(_box);
         whiteSuggar.table.pagination(
             _box,
             aryTest,
-            3,
-            (pageNo, data) => {
+            2,
+            (pageNo, data, content) => {
+                console.log({page:pageNo, data:data});
                 let _inner = `- Page:${pageNo.toString()} -`;
                 data.forEach((val)=>{
                     _inner = _inner + `<br>No:${val['No']} Data:${val['Data']}`; 
                 })
-                _boxC.innerHTML = _inner;
+                content.innerHTML = _inner;
             });
     });
 
@@ -69,23 +69,21 @@ describe('whiteSuggar.table', function(){
 
     it('pagination table' ,function(){
         const _box = document.createElement('div');
-        const _boxC = document.createElement('div');
         _box.id='pagination-table';
-        _box.appendChild(_boxC);
         document.getElementById('domTestsAria').appendChild(_box);
         whiteSuggar.table.pagination(
             _box,
             aryTest,
             3,
-            (pageNo, data) => {
+            (pageNo, data, content) => {
                 whiteSuggar.table.buildSimpleTables({
-                    element: _boxC,
+                    element: content,
                     columns:[
                         {data: "No", title:"#" , class:"col-width-1", visible:true, render: null, customAttribute:`scope="col"`},
                         {data: "Data", title:"Name" , class:"col-width-5", visible:true, render: null},
                         {data: "No-Data", title:"No-Data" ,  visible:true, render: function(row){return `<span>${row['No']}-${row['Data']}</span>`;}},
                     ],
-                    data: whiteSuggar.table.addupToPageSize(data, 3),
+                    data: data,
                     initialize: true});
                 whiteSuggar.table.addClassByClassName('upd-simple-table-title', 'table');
                 whiteSuggar.table.addClassByClassName('upd-simple-table-content', 'table');
