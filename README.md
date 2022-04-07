@@ -4,9 +4,8 @@ write in pure javascript.
 for company's internal system.    
 
 - elements filtering.
-- replace url, convert query to array.
-- paging (pagination).
-- simple table make
+- replace url, convert query to keyValuePair.
+- table paging (pagination).
 
 Using jsDelivr CDN:
 ```html
@@ -46,26 +45,27 @@ input.addEventListener('input', function(e){
 
 ## whiteSuggar.url
 
-replace url, convert query to array.    
+replace url, convert query to keyValuePair.   
+'replaceUrl' use 'history.pushState'.
 
 Quick Start
 ```js
-//get serialize form
-const form0 = document.getElementById('form0');
-const data = new FormData(form0);
+//send data
+const data = {};
+data['p01'] = 'Xxx';
+data['p02'] = '0000';
 
-const searchString = whiteSuggar.url.convertSearchString(data);
 //before -> https://host/mysite/index.html
-whiteSuggar.url.replaceUrl(searchString, 'submit');
-//After -> https://host/mysite/index.html?name0=value0&name1=value1&name2=value2#submit
+whiteSuggar.url.replaceUrl({params: data, hash: 'submit', method: 'whiteSuggar.url.replaceUrl'});
+//After -> https://host/mysite/index.html?p01=Xxx&p02=0000#submit
 
-const qry = whiteSuggar.url.querySerialize();
-//qry = [{name:name0, value:value0}, {name:name1, value:value1}, {name:name2, value:value2}];
+const qry = whiteSuggar.url.deserialize();
+//qry = {p01: 'Xxx', p02: '0000'};
 ```
 
-## whiteSuggar.paging
+## whiteSuggar.table
 
-paging system.    
+paging system. and make table.  
 
 this module using bootstrap 5.    
 but not using bootstrap 5, this module works.    
@@ -82,22 +82,25 @@ Quick Start
 ```js
 const _data = _service.getData();
 const pagingContent = document.getElementById('pagingContent');
-const table0 = document.getElementById('table0');
-whiteSuggar.paging.pagination(
+
+whiteSuggar.table.pagination(
     pagingContent,
     _data,
-    3,
-    (pageNo, data) =>  whiteSuggar.table.buildSimpleTables({
-        element: table0,
-        columns:[
-            {data: "No", title:"#" , class:"col-width-1", visible:true, render: null},
-            {data: "Name", title:"Name" , class:"col-width-5", visible:true, render: null},
-            {data: "Age", title:"Age" , class:"col-width-2", visible:true, render: (data) => {return `<small>${data}</small>`;}},
-            {data: "Id", title:"ID" , class:"", visible:fales, render: null}
-        ],
-        data: data,
-        initialize: true
-    }));
+    5,
+    (pageNo, data, content) => {
+        whiteSuggar.table.buildSimpleTables({
+            element: content,
+            columns:[
+                {data: "No", title:"#" , class:"col-width-1", visible:true, render: null, customAttribute:`scope="col"`},
+                {data: "Name", title:"Name" , class:"col-wd-5", visible:true, render: null},
+                {data: "Age", title:"Age" , class:"col-wd-2", visible:true, render: (data) => {return `<small>${data}</small>`;}},
+                {data: "Id", title:"ID" , class:"", visible:fales, render: null}
+            ],
+            data: data,
+            initialize: true});
+        whiteSuggar.table.addClassByClassName('upd-simple-table-title', 'table');
+        whiteSuggar.table.addClassByClassName('upd-simple-table-content', 'table');
+});
 ```
 config of buildSimpleTables
 {element, columns, data, initialize}
@@ -107,10 +110,10 @@ config of buildSimpleTables
 | element | appended of table |
 | columns | see -> columns of config |
 | data | data |
-| initialize | element initialize ('true' inner clear |
+| initialize | element initialize ('true' inner clear) |
 
 columns of config :    
-{column: string, label: string, class: string, visible: boolean, render: function}
+{column: string, label: string, class: string, visible: boolean, render: function, customAttribute: string}
 
 | proparty | comment |
 |---|---|
@@ -119,6 +122,7 @@ columns of config :
 | class | className (add class) |
 | visible | column visible ('false' add display:none;) |
 | render | return innerHTML |
+| customAttribute | Attribute 'name="value"' |
 
 # Japanese
 素のjsで書いているため、プラグインは不要（PagingのみBootstrapがいる）    
